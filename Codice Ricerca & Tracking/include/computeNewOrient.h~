@@ -1,0 +1,40 @@
+//
+// File: computeNewOrient.h
+//
+// MATLAB Coder version            : 3.2
+// C/C++ source code generated on  : 21-Nov-2017 18:04:05
+//
+#ifndef COMPUTENEWORIENT_H
+#define COMPUTENEWORIENT_H
+
+// Include Files
+#include <cmath>
+#include <math.h>
+#include <stddef.h>
+#include <stdlib.h>
+#include "k/rt_defines.h"
+#include "k/rt_nonfinite.h"
+#include "k/rtwtypes.h"
+#include "../utils/computeNewOrient_types.h"
+extern real_T rtInf;
+extern real_T rtMinusInf;
+extern real_T rtNaN;
+extern real32_T rtInfF;
+extern real32_T rtMinusInfF;
+extern real32_T rtNaNF;
+extern void rt_InitInfAndNaN(size_t realSize);
+extern boolean_T rtIsInf(real_T value);
+extern boolean_T rtIsInfF(real32_T value);
+extern boolean_T rtIsNaN(real_T value);
+extern boolean_T rtIsNaNF(real32_T value);
+// Function Declarations
+extern void computeNewOrient(const double human_prec[3], const double
+  human_actual[3], const double Rbc[9], const double eul_prec[3], double eu[3]);
+
+#endif
+
+//
+// File trailer for computeNewOrient.h
+//
+// [EOF]
+//

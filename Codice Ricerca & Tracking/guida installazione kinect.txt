@@ -1,0 +1,4 @@
+Installare OPENNI
+Installare SensorKinect
+Installare NITE
+Infine mettere Openni_tracker in catkin_ws

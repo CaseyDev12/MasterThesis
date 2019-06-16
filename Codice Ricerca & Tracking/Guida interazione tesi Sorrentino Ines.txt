@@ -1,0 +1,35 @@
+Per avviare UR10 con programma di tracking dello human
+
+- Aprire 6 terminali
+
+- Fare cd catkin_ws in tutti i terminali
+
+- Terminale 1 --> roscore
+
+- Terminale 2 --> roslaunch openni_launch openni.launch
+
+- Terminale 3 --> ssh -l root 192.168.1.6
+		  password --> easybot
+		  cd /home/uruser/server
+		  pkill URControl
+	          URControl   (Ctrl + c dopo qualche secondo)
+		  ./bin/UR10dev start
+
+- Terminale 4 --> roslaunch Sorrentino_Tesi Test_launch.launch  
+
+- Terminale 5 --> roslaunch ur10_llsi_driver ur10driver_launch.launch 
+(attenzione all'ip settato nel file \catkin_ws\src\UR10\ur10_llsi_driver\config\config.yaml)
+
+- Terminale 6 --> rosrun openni_tracker openni_tracker
+
+Per visualizzare skeleten, aprire un altro terminale:
+
+- Terminale 7 --> rosrun rviz rviz
+							  selezionare la terna di riferimento openni_depth_frame
+							  aggiungere visualizzazione TF
+
+
+Per registrare flusso video kinect
+Terminale 8 -->  cd /path in cui salvare il video
+							rosrun image_view video_recorder image:=camera/rgb/image_color _fps:=30
+

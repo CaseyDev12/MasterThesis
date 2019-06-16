@@ -1,0 +1,200 @@
+//
+// File: computeNewOrient.cpp
+//
+// MATLAB Coder version            : 3.2
+// C/C++ source code generated on  : 21-Nov-2017 18:04:05
+//
+
+// Include Files
+#include "k/rt_nonfinite.h"
+#include "computeNewOrient.h"
+
+// Function Declarations
+static double rt_atan2d_snf(double u0, double u1);
+
+// Function Definitions
+
+//
+// Arguments    : double u0
+//                double u1
+// Return Type  : double
+//
+static double rt_atan2d_snf(double u0, double u1)
+{
+  double y;
+  int b_u0;
+  int b_u1;
+  if (rtIsNaN(u0) || rtIsNaN(u1)) {
+    y = rtNaN;
+  } else if (rtIsInf(u0) && rtIsInf(u1)) {
+    if (u0 > 0.0) {
+      b_u0 = 1;
+    } else {
+      b_u0 = -1;
+    }
+
+    if (u1 > 0.0) {
+      b_u1 = 1;
+    } else {
+      b_u1 = -1;
+    }
+
+    y = atan2((double)b_u0, (double)b_u1);
+  } else if (u1 == 0.0) {
+    if (u0 > 0.0) {
+      y = RT_PI / 2.0;
+    } else if (u0 < 0.0) {
+      y = -(RT_PI / 2.0);
+    } else {
+      y = 0.0;
+    }
+  } else {
+    y = atan2(u0, u1);
+  }
+
+  return y;
+}
+
+//
+// Arguments    : const double human_prec[3]
+//                const double human_actual[3]
+//                const double Rbc[9]
+//                const double eul_prec[3]
+//                double eu[3]
+// Return Type  : void
+//
+void computeNewOrient(const double human_prec[3], const double human_actual[3],
+                      const double Rbc[9], const double eul_prec[3], double eu[3])
+{
+  double deltaY;
+  double beta;
+  double alfa;
+  double cbeta;
+  double sbeta;
+  double dv0[9];
+  double b_cbeta[9];
+  int j;
+  static const signed char iv0[3] = { 1, 0, 0 };
+
+  static const signed char iv1[3] = { 0, 1, 0 };
+
+  double dv1[9];
+  int i0;
+  int i1;
+  double Rb_des[9];
+  deltaY = human_actual[1] - human_prec[1];
+  beta = std::asin(deltaY / std::sqrt(human_prec[0] * human_prec[0] + deltaY *
+    deltaY));
+  if ((deltaY > 0.0) && (beta > 0.0)) {
+    beta = -beta;
+  }
+
+  if ((deltaY < 0.0) && (beta < 0.0)) {
+    beta = -beta;
+  }
+
+  deltaY = human_actual[2] - human_prec[2];
+  alfa = std::asin(deltaY / std::sqrt(human_prec[0] * human_prec[0] + deltaY *
+    deltaY));
+  if ((deltaY > 0.0) && (alfa < 0.0)) {
+    alfa = -alfa;
+  }
+
+  if ((deltaY < 0.0) && (alfa > 0.0)) {
+    alfa = -alfa;
+  }
+
+  cbeta = std::cos(beta);
+  sbeta = std::sin(beta);
+  beta = std::cos(alfa);
+  deltaY = std::sin(alfa);
+  dv0[1] = 0.0;
+  dv0[4] = beta;
+  dv0[7] = -deltaY;
+  dv0[2] = 0.0;
+  dv0[5] = deltaY;
+  dv0[8] = beta;
+  b_cbeta[0] = cbeta;
+  b_cbeta[3] = 0.0;
+  b_cbeta[6] = sbeta;
+  for (j = 0; j < 3; j++) {
+    dv0[3 * j] = iv0[j];
+    b_cbeta[1 + 3 * j] = iv1[j];
+  }
+
+  b_cbeta[2] = -sbeta;
+  b_cbeta[5] = 0.0;
+  b_cbeta[8] = cbeta;
+  for (j = 0; j < 3; j++) {
+    for (i0 = 0; i0 < 3; i0++) {
+      dv1[j + 3 * i0] = 0.0;
+      for (i1 = 0; i1 < 3; i1++) {
+        dv1[j + 3 * i0] += dv0[j + 3 * i1] * b_cbeta[i1 + 3 * i0];
+      }
+    }
+  }
+
+  for (j = 0; j < 3; j++) {
+    for (i0 = 0; i0 < 3; i0++) {
+      Rb_des[j + 3 * i0] = 0.0;
+      for (i1 = 0; i1 < 3; i1++) {
+        Rb_des[j + 3 * i0] += Rbc[j + 3 * i1] * dv1[i1 + 3 * i0];
+      }
+    }
+  }
+
+  // Coverte la Matrice R in ingresso in angoli di Eulero ZYZ
+  // varargin:
+  deltaY = rt_atan2d_snf(Rb_des[7], Rb_des[6]);
+  beta = rt_atan2d_snf(std::sqrt(Rb_des[6] * Rb_des[6] + Rb_des[7] * Rb_des[7]),
+                       Rb_des[8]);
+  sbeta = rt_atan2d_snf(Rb_des[5], -Rb_des[2]);
+  if (std::sin(beta) < 1.0E-6) {
+    // singolarita' di rappresentazione
+    if (std::abs(std::abs(beta) - 3.1415926535897931) < 1.0E-6) {
+      deltaY = rt_atan2d_snf(-Rb_des[3], Rb_des[4]);
+      sbeta = 0.0;
+      beta = 3.1415926535897931;
+    } else {
+      deltaY = rt_atan2d_snf(Rb_des[1], Rb_des[0]);
+      sbeta = 0.0;
+    }
+  }
+
+  //  %Tutti gli angoli li si riporta in [-pi pi) ?
+  //
+  //  if(phi < -pi || phi >= pi)
+  //      phi = phi - sign(phi)*2*pi;
+  //  end
+  //
+  //  % if(theta < -theta || theta >= pi)
+  //  %     theta= psi - sign(teta)*2*pi;
+  //  % end
+  //
+  //  if(psi < -pi || phi >= pi)
+  //      psi= psi - sign(psi)*2*pi;
+  //  end
+  eu[0] = deltaY;
+  eu[1] = beta;
+  eu[2] = sbeta;
+  for (j = 0; j < 3; j++) {
+    deltaY = eu[j];
+    if ((eul_prec[j] < 0.0) && (eu[j] > 0.0) && (std::abs(eul_prec[j] - eu[j]) >
+         3.1415926535897931)) {
+      deltaY = eu[j] - 6.2831853071795862;
+    }
+
+    if ((eul_prec[j] > 0.0) && (deltaY < 0.0) && (std::abs(eul_prec[j] - deltaY)
+         > 3.1415926535897931)) {
+      deltaY += 6.2831853071795862;
+    }
+
+    eu[j] = deltaY;
+  }
+}
+
+//
+// File trailer for computeNewOrient.cpp
+//
+// [EOF]
+//

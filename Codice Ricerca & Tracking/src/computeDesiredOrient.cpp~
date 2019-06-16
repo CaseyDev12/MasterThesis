@@ -1,0 +1,197 @@
+#include "computeDesiredOrient.h"
+
+
+//
+// Arguments    : const double human_prec[3]
+//                const double human_actual[3]
+//                const double Rbc[9]
+//                const double eul_prec[3]
+//                double eul_des[3]
+// Return Type  : void
+//
+
+
+
+void cross_product(double xc[], double zbc[], double nc[]) {
+	nc[0] = xc[1]*zbc[2] - xc[2]*zbc[1];
+	nc[1] = xc[2]*zbc[0] - xc[0]*zbc[2];
+	nc[2] = xc[0]*zbc[1] - xc[1]*zbc[0];
+}
+
+
+double computeNorm(double x[]) {
+	double sum = 0;
+	for(int i=0; i<3; i++)
+		sum += x[i]*x[i];
+	double norm = sqrt(sum);
+	return norm;
+}
+
+
+void computeDesiredOrient(const double human_actual[3], const double Rbc[3][3], const double eul_prec[3], double eul_des[3]) {
+
+	
+	// Calcolo delle rotazioni desiderate in terna camera
+    double x_human = human_actual[0];
+    double y_human = human_actual[1];
+    double z_human = human_actual[2];
+
+	double ipotenusaYX = sqrt(pow(x_human,2) + pow(y_human,2));
+    double rotZ_camera = asin(y_human / ipotenusaYX);
+     
+    double ipotenusaZX = sqrt(pow(x_human,2) + pow(z_human,2));
+    double rotY_camera = asin(z_human / ipotenusaZX);
+
+
+	// Rotazioni desiderate in terna camera identificata, ricordando che x = -y, y = -z, z = x
+    // Quindi la rotazione intorno a z diventa una rotazione intorno ad y di -rotZ_camera
+    // e la rotazione intorno ad y diventa una rotazione intorno ad x di -rotY_camera
+    if(y_human>0 && rotZ_camera>0)
+        rotZ_camera = -rotZ_camera;
+    if(y_human<0 && rotZ_camera<0)
+        rotZ_camera = -rotZ_camera;
+         
+    if(z_human>0 && rotY_camera<0)
+            rotY_camera = -rotY_camera;
+    if(z_human<0 && rotY_camera>0)
+            rotY_camera = -rotY_camera;
+     
+    double rotY_cameraident = rotZ_camera;
+    double rotX_cameraident = rotY_camera;
+
+
+	// Calcolo la matrice di rotazione desiderata della camera affinché essa inquadri lo human a centro immagine
+    double calfa = cos(rotX_cameraident);
+    double salfa = sin(rotX_cameraident);
+    double cbeta = cos(rotY_cameraident);
+    double sbeta = sin(rotY_cameraident);
+
+	double Rx[3][3] = {{1, 0, 0}, {0, calfa, -salfa}, {0, salfa, calfa}};
+	double Ry[3][3] = {{cbeta, 0, sbeta}, {0, 1, 0}, {-sbeta, 0, cbeta}};
+
+	double Rcameraid_cameraidDes[3][3];
+	double elem;
+	for(int ii = 0; ii < 3; ii++) {
+		for(int jj = 0; jj < 3; jj++) {
+			elem = 0;
+			for(int kk = 0; kk < 3; kk++) {
+				elem += Ry[jj][kk] * Rx[kk][ii];
+			}
+			Rcameraid_cameraidDes[jj][ii] = elem;
+		}
+	}
+
+	double Rbc_des[3][3];
+	for(int ii = 0; ii < 3; ii++) {
+		for(int jj = 0; jj < 3; jj++) {
+			elem = 0;
+			for(int kk = 0; kk < 3; kk++) {
+				elem += Rbc[jj][kk] * Rcameraid_cameraidDes[kk][ii];
+			}
+			Rbc_des[jj][ii] = elem;
+		}
+	}
+
+	// Quanto segue serve ad allineare la camera con il piano x-y della terna mondo, 
+	// in modo che essa sia sempre dritta e mai obliqua  
+
+	// Versore x della terna camera
+	double xbc[3];
+	for(int ii=0; ii<3; ii++)
+		xbc[ii] = Rbc_des[ii][0];
+	
+	// Versore z della camera
+	double zbc[3];
+	for(int ii=0; ii<3; ii++)
+		zbc[ii] = Rbc_des[ii][2];
+
+	// Angolo tra il versore z della camera e l'asse z terna mondo 
+	double theta_versore = acos(zbc[2]);
+	
+	// Angolo tra il versore z della camera e l'asse x terna mondo
+	double phi_versore = asin(zbc[1]/sin(theta_versore));
+
+	// Versore xc che insieme a zbc della camera identifica il piano in cui vogliamo portare il versore xbc
+	double xc[3];
+	xc[0] = cos(-M_PI/2+phi_versore);
+	xc[1] = sin(-M_PI/2+phi_versore);
+	xc[2] = 0;
+
+	// Versore normale al piano individuato
+	double nc[3];
+	cross_product(xc, zbc, nc);
+	double norm_nc = computeNorm(nc);
+	for(int ii=0; ii<3; ii++)
+		nc[ii] = nc[ii]/norm_nc;
+
+	// Angolo tra il versore xbc e il piano individuato dalla normale nc
+	double prod = 0;
+	for(int ii=0; ii<3; ii++)
+		prod += nc[ii]*xbc[ii];
+	double theta_xbc = asin(prod);
+	
+	double cz = cos(theta_xbc);
+	double sz = sin(theta_xbc);
+	double Rz[3][3] = {{cz, -sz, 0}, {sz, cz, 0}, {0, 0, 1}};
+
+	// Moltiplico le precedenti rotazioni per quest'ultima e ottengo la matrice di rotazione
+	// finale della camera desiderata
+	double Rbc_final[3][3];
+	for(int ii = 0; ii < 3; ii++) {
+		for(int jj = 0; jj < 3; jj++) {
+			elem = 0;
+			for(int kk = 0; kk < 3; kk++) {
+				elem += Rbc_des[jj][kk] * Rz[kk][ii];
+			}
+			Rbc_final[jj][ii] = elem;
+			
+			string path, log;
+			log = std::to_string(Rbc_final[jj][ii]) + " ";
+			path = "/home/ros-account/Scrivania/ROS Dir/src/Tesi/Sorrentino/log/Rbc_des.txt";
+			
+		}
+	}
+
+
+	// Converto la matrice di rotazione Rbc_des in angoli di Euleroc (ZYZ) desiderati
+	double phi = atan2(Rbc_final[1][2], Rbc_final[0][2]);
+	double theta = atan2(sqrt(pow(Rbc_final[0][2],2) + pow(Rbc_final[1][2],2)), Rbc_final[2][2]);	
+	double psi = atan2(Rbc_final[2][1], -Rbc_final[2][0]);
+
+	// Singolarità di rappresentazione
+	if(sin(theta)<1e-6) {
+		if(abs(abs(theta)-PI_DEF)<1e-6) {
+			phi = atan2(-Rbc_final[0][1], Rbc_final[1][1]);
+			psi = 0;
+			theta = PI_DEF;
+		} else {
+			phi = atan2(Rbc_final[1][0], Rbc_final[0][0]);
+			psi = 0;
+		}
+	}
+	eul_des[0] = phi;
+	eul_des[1] = theta;
+	eul_des[2] = psi;
+
+	
+	for(int ii=0; ii<3; ii++) {
+		if(eul_prec[ii]<0 && eul_des[ii]>0 && abs(eul_prec[ii] - eul_des[ii])>PI_DEF)
+			eul_des[ii] = eul_des[ii] - 2*PI_DEF;
+		if(eul_prec[ii]>0 && eul_des[ii]<0 && abs(eul_prec[ii] - eul_des[ii])>PI_DEF)
+			eul_des[ii] = eul_des[ii] + 2*PI_DEF;
+	}
+
+
+}
+
+
+
+
+
+
+
+
+
+
+
+

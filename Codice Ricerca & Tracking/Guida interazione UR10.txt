@@ -1,0 +1,35 @@
+PASSI PER ESECUZIONE:
+
+1) Modificare il file /home/ros-account/catkin_ws/src/UR10/ur10_llsi_driver/config.yaml: impostare ip del robot e porta su cui ascolta
+	portno: 30003
+	ipserver: "192.168.1.6"
+2) Avviare il server UR10:
+	2a) Connessione ssh robot, PASSWORD: easybot
+		ssh -l root 192.168.1.6
+	2b) Posizionarsi su /home/uruser/server
+		cd /home/uruser/server
+	2c) Interrompere programma di controllo del robot
+		pkill URControl 
+	2d) Avviare il server
+		./bin/UR10dev start
+3) Avviare nodo controllore ROS 
+	es. rosrun Guarini Guarini_node
+4) Avviare socket 
+	roslaunch ur10_llsi_driver ur10driver_launch.launch
+
+PASSI PER SPEGNIMENTO:
+- Chiudere socket 
+- Chiudere server 
+- Chiudere controller
+
+MALFUNZIONAMENTI: 
+- Se il server va in errore riavviarlo, se ancora va in errore avviare URControl, attendere qualche secondo e poi farne il kill (Ctrl+C)
+
+COLLEGAMENTO TRAMITE FTP
+- Aprire FileZilla
+- Inserire in Host -> sftp://192.168.1.6
+		   in Nome utente -> root
+		   in Password -> easybot
+- Connettersi
+
+

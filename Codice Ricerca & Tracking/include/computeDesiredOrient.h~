@@ -1,0 +1,19 @@
+#ifndef COMPUTEDESIREDORIENT_HPP_
+#define COMPUTEDESIREDORIENT_HPP_
+
+#include <ros/ros.h>
+#define _USE_MATH_DEFINES
+#include <math.h>
+#include <iostream>
+#include <fstream>
+#include <stdio.h>
+
+#define PI_DEF 3.14159265359
+
+// Function Declarations
+void cross_product(double xc[], double zbc[], double nc[]);
+double computeNorm(double x[]);
+void computeDesiredOrient(const double human_actual[3], const double Rbc[3][3], const double eul_prec[3], double eul_des[3]);
+
+
+#endif

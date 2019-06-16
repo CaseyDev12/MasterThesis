@@ -1,0 +1,66 @@
+########### Launch human tracking program - UR10 ########
+
+### REAL UR10 ROBOT
+
+- Open 6 terminals
+
+- Type '$ cd catkin_ws' in each terminal
+
+- Terminal1 --> $ roscore
+
+- Terminal2 --> $ roslaunch openni_launch openni.launch
+
+- Terminal3 --> $ ssh -l root 192.168.1.6
+                password --> easybot
+                $ cd /home/uruser/server
+                $ pkill URControl
+                $ URControl  (Ctrl + C after a few seconds)
+                $ ./bin/UR10dev start
+
+- Terminal4 --> $ roslaunch Sorrentino_Tesi Test_launch.launch  
+
+- Terminal5 --> $ roslaunch ur10_llsi_driver ur10driver_launch.launch 
+(Check the ip address in the file \catkin_ws\src\UR10\ur10_llsi_driver\config\config.yaml)
+
+- Terminal6 --> $ rosrun openni_tracker openni_tracker
+
+For skeleton visualization, new terminal and:
+
+- Terminal7 --> $ rosrun rviz rviz
+                Select reference frame 'openni_depth_frame'
+                Add TF visualization
+
+
+To record the video streamed by the kinect:
+- Terminal8 --> $ cd /pathToSaveTheVideo
+                $ rosrun image_view video_recorder image:=camera/rgb/image_color _fps:=30
+
+To communicate with Comau robots:
+- Terminal9 --> $ rosrun comau c4g.......
+ 
+ 
+### SIMULATION 
+ 
+-  Start VREP and load the scene
+
+- Open 5 terminals and type in each one '$ cd catkin_ws'
+
+- Terminal1 --> $ roscore
+
+- Terminal2 --> $ roslaunch Sorrentino_Tesi Test_launch.launch
+
+- Terminal3 --> $ roslaunch ur10_simulator ur10_simulator_launch.launch
+
+- Terminal4 --> $ roslaunch ur10_llsi_driver ur10driver_launch.launch
+
+- Terminal5 --> $ roslaunch ur10_vrep vrep_launch.launch
+
+(Check the ip address in the file \catkin_ws\src\UR10\ur10_llsi_driver\config\config.yaml. It has to be 'localhost')
+
+
+
+
+
+
+
+

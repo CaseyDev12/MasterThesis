@@ -1,0 +1,10 @@
+libemlrt.lib
+libcovrt.lib
+libut.lib
+libmwmathutil.lib
+/export:mexFunction
+/export:emlrtMexFcnProperties
+/export:CGravita2
+/export:CGravita2_initialize
+/export:CGravita2_terminate
+/export:CGravita2_atexit

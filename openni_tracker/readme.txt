@@ -1,0 +1,1 @@
+Questa cartella deve essere posizionata in /catkin_ws/src

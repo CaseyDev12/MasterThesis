@@ -1,0 +1,12 @@
+comau_debug: false
+ur10_debug: true
+comau_log: false
+ur10_log: false
+ur10_traj_operative_space: false
+comau_pub_topic_name: "/comau/reference"
+comau_sub_topic_name: "/comau/joint_state"
+ur10_pub_topic_name: "/ur10_llsi_driver/reference"
+ur10_sub_topic_name: "/ur10_llsi_driver/joint_state"
+ur10_ft_sensor_sub_topic_name: "robotiq_force_torque_sensor"
+
+

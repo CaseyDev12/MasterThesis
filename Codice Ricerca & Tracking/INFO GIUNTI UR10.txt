@@ -1,0 +1,4 @@
+- Per passare dai valori delle variabili di giunti lette da VREP ai valori da utilizzare nella cinematica diretta, bisogna sommare
+  il seguente offset [pi 2*pi 2*pi 0 0 2*pi].
+
+- In VREP, per le simulazioni, bisogna utilizzare la scena del corso di PSC anno 2016/2017 (SmartSixCellaPSC2017.ttt), in quanto l'ur10 è modificato.

@@ -1,0 +1,24 @@
+if(robot_ready && !humanRobot->human_first && TRAJ_PRE_SKELETON) {
+
+	if(!end_traj && norm(dqd, dq0) < 1e-10) {
+		end_traj = true;
+		wait_time = wait_time + UR10_SAMPLE_TIME;	
+	} else {
+		if(!first_msg && end_traj && wait_time > WAIT) {
+			index_traj_pre_skeleton++;
+			if(index_traj_pre_skeleton == index_traj_pre_skeleton.length())
+				inde_traj_pre_skeleton = 0;
+			end_traj = false;
+			wait_time = 0;
+		} else {
+			updateControlInput();
+			for (int i = 0; i <dofs; i++) {	
+				p.positions.push_back(qd[i]);
+				p.velocities.push_back(dqd[i]);	 
+			}
+			robot_time=robot_time+step_time;
+			first_msg=false;
+		}
+	}
+
+}

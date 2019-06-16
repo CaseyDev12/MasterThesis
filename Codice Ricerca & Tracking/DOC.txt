@@ -1,0 +1,19 @@
+La classe UR10Controller gestisce la movimentazione del robot UR10 per eseguire la ricerca di persone nella cella di lavoro e per farne il tracking una volta che queste sono state individuate.
+Il robot può assumere dunque due stati a seconda del task che sta eseguendo, ricerca o trakcing.
+
+PRIMO STATO
+Il primo stato prevede che il robot esegua inizialmente una traiettoria nello spazio giunti per portarsi in una posizione desiderata, comoda per eseguire il resto dell'algoritmo.
+Dopo la traiettoria spazio giunti si alternano due fasi:
+- prima fase: il robot è fermo per tot secondi e si sfrutta la classe HumanRobotController per leggere dal topic /tf al fine di controllare se una persona viene individuata
+- seconda fase: finito il tempo di stop e di lettura del topic /tf il robot, tramite una pianificazione nello spazio operativo e un'inversione di traiettoria tramite clik,
+  si porta in un nuovo punto della cella desiderato in modo da poter inquadrare un'altra area rieseguendo la prima fase.
+  
+SECONDO STATO
+Il robot passa nel secondo stato non appena una persona viene individuata. 
+Questo stato prevede di leggere da topic le informazioni circa la posizione della persona di cui si sta eseguendo il tracking. Per farlo si sfrutta la classe HumanRobotController.
+A partire dalle posizioni della persona vengono calcolati la nuova posizione e orientamento desiderati per l'end-effector del robot.
+Questi vengono filtrati con un filtro del secondo ordine rappresentato dalla classe Filter.
+In seguito la posizione e l'orientamento filtrati vengono invertiti tramite clik nella classe UR10Controller.
+
+Durante l'esecuzione dell'algoritmo presentato, la classe UR10Controller si occupa anche di calcolare il delta sul task dei robot cooperanti. Sfruttando la posizione dell'oggetto trasportato 
+dai robot cooperanti, letta da topic, e sulla base della posizione della persona, il delta viene calcolato utilizzando una legge di impedenza, rappresentata dalla classe ComauInteraction.

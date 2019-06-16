@@ -1,0 +1,30 @@
+Matrice che esprime la terna della base dell'UR10 nella terna mondo:
+
+Ab0 = [1,    0,    0,    -0.81
+	   0,   -1,    0,    2.8428
+	   0,    0,   -1,    2.2512
+	   0,    0,    0,       1   ]  
+
+
+
+
+
+
+Matrice che esprime la terna della camera, identificata attraverso la calibrazione della camera stessa, nella terna n del robot:
+
+An_cid = [-0.9974,      -0.0375,      0.0612,      -0.0069
+		  0.0341,      -0.9979,     -0.0551,       0.056
+	      0.0632,      -0.0528,      0.9966,       0.0932
+	         0,           0,           0,            1     ]
+
+
+
+
+
+Matrice che esprime la terna con cui la camera legge le coordinate dello skeleton nella terna della camera identificata attraverso la calibrazione:
+
+Acid_c = [0,    -1,     0,     0
+		  0,     0,    -1,     0 
+          1,     0,     0,     0
+		  0,     0,     0,     1]
+ 

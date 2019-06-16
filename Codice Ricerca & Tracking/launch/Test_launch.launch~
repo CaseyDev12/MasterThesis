@@ -1,0 +1,7 @@
+<launch>
+
+  <rosparam command="load" file="/home/ros-account/catkin_ws/src/Tesi/Sorrentino/config/config.yaml" />
+
+  <node pkg="Sorrentino_Tesi" type="Ines_node" name="Sorrentino_Tesi_node" output="screen" />
+
+</launch>
